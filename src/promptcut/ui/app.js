@@ -222,6 +222,7 @@ function init() {
   // Upload action button
   const fileInput = document.getElementById('videoFileInput');
   const uploadBtn = document.getElementById('uploadVideoBtn');
+  const sampleBtn = document.getElementById('sampleVideoBtn');
 
   uploadBtn?.addEventListener('click', () => {
     fileInput?.click();
@@ -231,6 +232,25 @@ function init() {
     const file = e.target.files?.[0];
     if (file) handleFileUpload(file);
     fileInput.value = '';
+  });
+
+  sampleBtn?.addEventListener('click', async () => {
+    emit('toast', { text: 'Loading worked example sample session...', type: 'info' });
+    const badge = document.getElementById('sessionStatusBadge');
+    const titleEl = document.getElementById('sessionTitle');
+    if (badge) {
+      badge.textContent = 'Loading...';
+      badge.className = 'px-2 py-0.5 rounded-md text-[10px] font-mono bg-indigo-950/80 text-indigo-300 border border-indigo-700/60';
+      badge.classList.remove('hidden');
+    }
+    if (titleEl) titleEl.textContent = 'Loading Sample Presentation...';
+    try {
+      const res = await api.createSampleSession();
+      await pollJobAndInitialize(res.session_id, res.job_id, 'Sample Presentation (Worked Example)');
+    } catch (err) {
+      emit('toast', { text: `Failed to load sample: ${err.message}`, type: 'error' });
+      if (badge) badge.textContent = 'Failed';
+    }
   });
 
   // Listen for instructions sent from word tools

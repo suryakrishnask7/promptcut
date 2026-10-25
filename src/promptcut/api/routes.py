@@ -104,6 +104,7 @@ _jobs: dict[str, dict[str, Any]] = {}
 class InstructionRequest(BaseModel):
     text: str = ""
     instruction: str | None = None
+    prompt: str | None = None
     answer: str | None = None
     interpreter_mode: str | None = None
     mode: str | None = None
@@ -112,8 +113,11 @@ class InstructionRequest(BaseModel):
     @classmethod
     def _normalize_fields(cls, data: Any) -> Any:
         if isinstance(data, dict):
-            if not data.get("text") and data.get("instruction"):
-                data["text"] = str(data["instruction"])
+            if not data.get("text"):
+                if data.get("prompt"):
+                    data["text"] = str(data["prompt"])
+                elif data.get("instruction"):
+                    data["text"] = str(data["instruction"])
             if not data.get("interpreter_mode") and data.get("mode"):
                 data["interpreter_mode"] = str(data["mode"])
         return data
@@ -212,6 +216,12 @@ def _run_transcription_job(
         _jobs[job_id]["progress"] = 85
         session.transcript = transcript
         session.timeline = apply(session.log, transcript)
+        try:
+            (session.session_dir / "transcript.json").write_text(
+                transcript.model_dump_json(indent=2), encoding="utf-8"
+            )
+        except Exception:
+            pass
 
         # Pre-generate 480p preview for short clips (<= 120s); longer videos stream directly
         # or render preview on-demand so user gets immediate editor access in ~15s
@@ -411,6 +421,13 @@ async def create_session(
         session_dir=session_dir,
     )
     _sessions[session_id] = session
+    try:
+        (session_dir / "session_meta.json").write_text(
+            json.dumps({"session_id": session_id, "video_path": str(target_video_path), "original_hash": orig_hash}, indent=2),
+            encoding="utf-8",
+        )
+    except Exception:
+        pass
 
     job_id = str(uuid.uuid4())[:8]
     _jobs[job_id] = {
@@ -1545,7 +1562,97 @@ def set_session_interpreter_mode(session_id: str, req: InterpreterModeRequest) -
     return {"status": "ok", "mode": session.interpreter_mode}
 
 
+def _rehydrate_session_from_disk(sess_dir: Path, session_id: str) -> SessionState | None:
+    if not sess_dir.is_dir():
+        return None
+    try:
+        video_path = None
+        orig_hash = None
+        meta_file = sess_dir / "session_meta.json"
+        if meta_file.is_file():
+            try:
+                meta = json.loads(meta_file.read_text(encoding="utf-8"))
+                cand = Path(meta.get("video_path", ""))
+                if cand.is_file():
+                    video_path = cand
+                orig_hash = meta.get("original_hash")
+            except Exception:
+                pass
+
+        if not video_path:
+            candidates = [
+                f for f in sess_dir.glob("*.mp4")
+                if f.name not in ("preview.mp4", "rendered.mp4")
+            ]
+            if not candidates:
+                candidates = list(sess_dir.glob("*.mp4"))
+            if candidates:
+                video_path = candidates[0]
+
+        if not video_path or not video_path.is_file():
+            return None
+
+        if not orig_hash:
+            orig_hash = compute_file_sha256(video_path)
+
+        session = SessionState(
+            session_id=session_id,
+            video_path=video_path,
+            original_hash=orig_hash,
+            session_dir=sess_dir,
+        )
+
+        # Rehydrate transcript
+        t_file = sess_dir / "transcript.json"
+        if not t_file.is_file():
+            t_file = sess_dir / "uploaded_transcript.json"
+
+        if t_file.is_file():
+            try:
+                session.transcript = Transcript.model_validate_json(
+                    t_file.read_text(encoding="utf-8")
+                )
+            except Exception as e:
+                logger.warning(f"Could not load transcript for {session_id}: {e}")
+
+        # Rehydrate operation log
+        log_file = sess_dir / "operation_log.json"
+        if log_file.is_file():
+            try:
+                session.log = OperationLog.model_validate_json(
+                    log_file.read_text(encoding="utf-8")
+                )
+            except Exception as e:
+                logger.warning(f"Could not load operation log for {session_id}: {e}")
+
+        if session.transcript:
+            session.timeline = apply(session.log, session.transcript)
+
+        _sessions[session_id] = session
+        logger.info(f"Rehydrated session '{session_id}' from disk storage: {sess_dir}")
+        return session
+    except Exception as e:
+        logger.warning(f"Rehydration error for {session_id}: {e}")
+        return None
+
+
 def _get_session(session_id: str) -> SessionState:
-    if session_id not in _sessions:
-        raise HTTPException(status_code=404, detail=f"Session not found: {session_id}")
-    return _sessions[session_id]
+    if session_id in _sessions:
+        return _sessions[session_id]
+
+    # Check direct folder
+    sess_dir = SESSIONS_ROOT / session_id
+    rehydrated = _rehydrate_session_from_disk(sess_dir, session_id)
+    if rehydrated:
+        return rehydrated
+
+    # Check for prefix or substring match in SESSIONS_ROOT
+    if SESSIONS_ROOT.is_dir():
+        for d in SESSIONS_ROOT.iterdir():
+            if d.is_dir() and (d.name.startswith(session_id) or session_id.startswith(d.name)):
+                rehydrated = _rehydrate_session_from_disk(d, d.name)
+                if rehydrated:
+                    _sessions[session_id] = rehydrated
+                    return rehydrated
+
+    raise HTTPException(status_code=404, detail=f"Session not found: {session_id}")

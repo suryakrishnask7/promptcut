@@ -28,8 +28,12 @@ async function request(path, options = {}) {
     let errDetail = `${response.status} ${response.statusText}`;
     try {
       const errJson = await response.json();
-      if (errJson && errJson.detail) {
+      if (errJson?.error?.message) {
+        errDetail = errJson.error.message;
+      } else if (errJson?.detail) {
         errDetail = typeof errJson.detail === 'string' ? errJson.detail : JSON.stringify(errJson.detail);
+      } else if (errJson?.message) {
+        errDetail = errJson.message;
       }
     } catch {
       // Body wasn't JSON, retain statusText

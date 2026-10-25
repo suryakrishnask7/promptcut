@@ -220,17 +220,21 @@ export async function handleSend(instructionOverride = null, contextOverride = n
       emit('video_refresh');
     }
   } catch (err) {
+    let reason = err.message || 'Unknown network error';
+    if (err.status === 404 || reason.includes('404') || reason.toLowerCase().includes('session not found')) {
+      reason = 'Session expired or not found on server. Please click "Sample Demo" or "Upload Video" to start an active editing session.';
+    }
     messageHistory.push({
       id: `err-${Date.now()}`,
       role: 'system',
       response: {
         type: 'rejected',
-        reason: err.message || 'Unknown network error',
+        reason: reason,
         interpreted_by: 'system',
       },
       timestamp: new Date(),
     });
-    emit('toast', { text: `Failed: ${err.message}`, type: 'error' });
+    emit('toast', { text: reason, type: 'error' });
   } finally {
     setState({ isSending: false });
     renderMessages();
