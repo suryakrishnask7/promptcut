@@ -201,6 +201,7 @@ def _run_transcription_job(
 
             # 4. Fallback: MockTranscriptionAdapter (synthetic/default words when offline without models)
             if transcript is None or len(transcript.words) == 0:
+                _jobs[job_id]["progress"] = 75
                 adapter = MockTranscriptionAdapter()
                 transcript = adapter.transcribe(
                     session.video_path,
@@ -208,7 +209,7 @@ def _run_transcription_job(
                 )
                 used_provider = "mock"
 
-        _jobs[job_id]["progress"] = 80
+        _jobs[job_id]["progress"] = 85
         session.transcript = transcript
         session.timeline = apply(session.log, transcript)
 
@@ -254,7 +255,7 @@ def _run_transcription_job(
                 "status": "succeeded",
                 "progress": 100,
             })
-    except Exception as e:
+    except BaseException as e:
         _jobs[job_id]["status"] = "failed"
         _jobs[job_id]["error"] = str(e)
         if callback_url:
@@ -339,7 +340,7 @@ def _run_render_job(
                 "rendered_url": rendered_url,
                 "download_url": download_url,
             })
-    except Exception as e:
+    except BaseException as e:
         _jobs[job_id]["status"] = "failed"
         _jobs[job_id]["error"] = str(e)
         if callback_url:

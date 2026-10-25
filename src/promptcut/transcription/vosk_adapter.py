@@ -60,6 +60,14 @@ class VoskTranscriptionAdapter(TranscriptionAdapter):
             if self._model_path:
                 self._model = vosk.Model(str(self._model_path))
             else:
+                # Check if a model directory exists locally before allowing vosk to download / sys.exit(1)
+                model_exists = False
+                for d in getattr(vosk, "MODEL_DIRS", []):
+                    if d and Path(d).exists() and any(Path(d).glob(f"*{self._lang}*")):
+                        model_exists = True
+                        break
+                if not model_exists and not os.getenv("VOSK_MODEL_PATH"):
+                    raise RuntimeError("No local Vosk model found. Set VOSK_MODEL_PATH or provide model_path.")
                 self._model = vosk.Model(lang=self._lang)
         return self._model
 

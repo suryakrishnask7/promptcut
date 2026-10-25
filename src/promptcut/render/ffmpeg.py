@@ -220,31 +220,33 @@ def render_timeline(
     cmd.append(str(destination))
 
     if on_progress is not None and prog_file is not None:
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        tot_dur = max(0.1, timeline.total_duration)
-        while proc.poll() is None:
-            time.sleep(0.3)
-            if prog_file.is_file():
-                try:
-                    content = prog_file.read_text(errors="ignore")
-                    lines = content.strip().splitlines()
-                    for l in reversed(lines[-8:]):
-                        if l.startswith(("out_time_us=", "out_time_ms=")):
-                            val = int(l.split("=")[1])
-                            secs = val / 1_000_000.0
-                            pct = min(98.0, max(5.0, (secs / tot_dur) * 100.0))
-                            on_progress(pct)
-                            break
-                except Exception:
-                    pass
+        err_file = destination.parent / f"{destination.stem}_{uuid.uuid4().hex[:6]}_err.log"
+        with open(err_file, "w", encoding="utf-8", errors="ignore") as err_f:
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=err_f,
+                text=True,
+            )
+            tot_dur = max(0.1, timeline.total_duration)
+            while proc.poll() is None:
+                time.sleep(0.3)
+                if prog_file.is_file():
+                    try:
+                        content = prog_file.read_text(errors="ignore")
+                        lines = content.strip().splitlines()
+                        for l in reversed(lines[-8:]):
+                            if l.startswith(("out_time_us=", "out_time_ms=")):
+                                val = int(l.split("=")[1])
+                                secs = val / 1_000_000.0
+                                pct = min(98.0, max(5.0, (secs / tot_dur) * 100.0))
+                                on_progress(pct)
+                                break
+                    except Exception:
+                        pass
 
-        _, stderr_text = proc.communicate()
         if proc.returncode != 0:
+            stderr_text = err_file.read_text(encoding="utf-8", errors="ignore") if err_file.is_file() else ""
             raise RuntimeError(
                 f"FFmpeg render failed with exit code {proc.returncode}:\n{stderr_text}"
             )
@@ -252,6 +254,8 @@ def render_timeline(
         try:
             if prog_file.exists():
                 prog_file.unlink()
+            if err_file.exists():
+                err_file.unlink()
         except OSError:
             pass
     else:
