@@ -301,13 +301,13 @@ function renderWords() {
       <!-- Hover Action Toolbar with buffer to prevent premature closing -->
       <span class="word-toolbar absolute bottom-full left-1/2 -translate-x-1/2 pb-1.5 hidden group-hover:flex flex-col items-center z-30 pointer-events-auto">
         <span class="flex items-center gap-0.5 bg-zinc-900 text-white rounded-md shadow-2xl px-1.5 py-1 text-[11px] select-none border border-zinc-700 whitespace-nowrap">
-          <button class="tool-cut px-1.5 py-0.5 rounded hover:bg-rose-500/20 hover:text-rose-300 font-medium transition-colors" title="Cut word">✂️ Cut</button>
+          <button class="tool-cut px-1.5 py-0.5 rounded hover:bg-rose-500/20 hover:text-rose-300 font-medium transition-colors" title="Cut word">Cut</button>
           <span class="text-zinc-600">|</span>
-          <button class="tool-bleep px-1.5 py-0.5 rounded hover:bg-amber-500/20 hover:text-amber-300 font-medium transition-colors" title="Bleep word">🤫 Bleep</button>
+          <button class="tool-bleep px-1.5 py-0.5 rounded hover:bg-amber-500/20 hover:text-amber-300 font-medium transition-colors" title="Bleep word">Bleep</button>
           <span class="text-zinc-600">|</span>
-          <button class="tool-copy px-1.5 py-0.5 rounded hover:bg-indigo-500/20 hover:text-indigo-300 font-medium transition-colors" title="Copy word">📋 Copy</button>
+          <button class="tool-copy px-1.5 py-0.5 rounded hover:bg-indigo-500/20 hover:text-indigo-300 font-medium transition-colors" title="Copy word">Copy</button>
           <span class="text-zinc-600">|</span>
-          <button class="tool-edit px-1.5 py-0.5 rounded hover:bg-sky-500/20 hover:text-sky-300 font-medium transition-colors" title="Correct word text">✏️ Edit</button>
+          <button class="tool-edit px-1.5 py-0.5 rounded hover:bg-sky-500/20 hover:text-sky-300 font-medium transition-colors" title="Correct word text">Edit</button>
         </span>
       </span>
     `;

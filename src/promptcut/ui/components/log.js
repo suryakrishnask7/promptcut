@@ -179,25 +179,20 @@ function render() {
         : 'opacity-40 bg-zinc-100/50 dark:bg-zinc-900/30 border-dashed border-zinc-300 dark:border-zinc-800'
     }`;
 
-    // Op type styling & icons
-    let opIcon = '✂️';
+    // Op type styling & title
     let opTitle = 'Cut';
     let opBadgeClass = 'text-rose-600 bg-rose-50 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-900';
 
     if (op.op_type === 'bleep_words') {
-      opIcon = '🤫';
       opTitle = 'Bleep';
       opBadgeClass = 'text-amber-600 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900';
     } else if (op.op_type === 'add_caption') {
-      opIcon = '📝';
       opTitle = 'Caption';
       opBadgeClass = 'text-sky-600 bg-sky-50 dark:bg-sky-950/60 dark:text-sky-300 border-sky-200 dark:border-sky-900';
     } else if (op.op_type === 'speed_change') {
-      opIcon = '⚡';
       opTitle = `${op.speed || 1}x Speed`;
       opBadgeClass = 'text-purple-600 bg-purple-50 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-900';
     } else if (op.op_type === 'keep_range') {
-      opIcon = '🎯';
       opTitle = 'Keep Only';
       opBadgeClass = 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900';
     }
@@ -209,14 +204,13 @@ function render() {
       <div class="flex items-center justify-between gap-1 mb-1">
         <div class="flex items-center gap-1.5">
           <span class="font-mono text-[10px] text-zinc-400 font-semibold">#${idx + 1}</span>
-          <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border ${opBadgeClass}">
-            <span>${opIcon}</span>
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold border ${opBadgeClass}">
             <span>${opTitle}</span>
           </span>
         </div>
         ${op.interpreted_by ? `
           <span class="text-[9px] font-mono text-zinc-400">
-            ${op.interpreted_by === 'rule' ? '⚡ rule' : '🤖 llm'}
+            ${op.interpreted_by === 'rule' ? 'rule' : 'llm'}
           </span>
         ` : ''}
       </div>

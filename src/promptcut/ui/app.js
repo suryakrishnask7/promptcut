@@ -81,12 +81,12 @@ function initToasts() {
         : 'bg-zinc-900/90 text-zinc-100 border-zinc-700'
     }`;
 
-    let icon = 'ℹ️';
+    let icon = '';
     if (type === 'success') icon = '✓';
     if (type === 'error') icon = '✕';
 
     toast.innerHTML = `
-      <span class="font-bold">${icon}</span>
+      ${icon ? `<span class="font-bold">${icon}</span>` : ''}
       <span class="flex-1">${text}</span>
     `;
 

@@ -6,7 +6,7 @@
  *   - Applied: green badge, summary, duration delta, affected words, inline Undo button.
  *   - Clarify: amber badge, question, clickable suggestion pills, follow-up composer.
  *   - Rejected: red badge, reason, suggested rephrasing.
- * - Displays `interpreted_by` pill (🤖 LLM, ⚡ Rule, 💾 Cache).
+ * - Displays `interpreted_by` pill (LLM, Rule, Cache).
  * - Manages composer textarea: auto-resize, Enter to send, Shift+Enter for newline.
  * - Interpreter mode selector (auto / llm_only / rule_only).
  */
@@ -295,32 +295,9 @@ function renderMessages() {
           </svg>
         </div>
         <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Prompt-Driven Video Editor</p>
-        <p class="text-xs mt-1 max-w-xs">Type what you want to edit in natural language, or try one of the quick suggestions below.</p>
-
-        <div class="mt-4 flex flex-wrap gap-1.5 justify-center max-w-xs">
-          <button class="sample-prompt text-xs px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 transition-colors border border-zinc-200 dark:border-zinc-700" data-prompt="remove filler words like um and uh">
-            ✂️ Remove fillers
-          </button>
-          <button class="sample-prompt text-xs px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 transition-colors border border-zinc-200 dark:border-zinc-700" data-prompt="bleep swear words">
-            🤫 Bleep profanity
-          </button>
-          <button class="sample-prompt text-xs px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 transition-colors border border-zinc-200 dark:border-zinc-700" data-prompt="add caption 'Pricing Breakdown' from 0:02 to 0:05">
-            📝 Add caption
-          </button>
-        </div>
+        <p class="text-xs mt-1 max-w-xs">Type what you want to edit in natural language.</p>
       </div>
     `;
-
-    // Attach listeners to suggestion chips
-    messagesContainer.querySelectorAll('.sample-prompt').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const prompt = btn.getAttribute('data-prompt');
-        if (chatInput && state.sessionId) {
-          chatInput.value = prompt;
-          handleSend();
-        }
-      });
-    });
     return;
   }
 
@@ -356,26 +333,22 @@ function createResponseCard(res, timestamp) {
   const interpretedBy = res.interpreted_by || 'llm';
 
   // Badge configuration
-  let badgeIcon = '🤖';
   let badgeLabel = 'LLM';
   let badgeColor = 'bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300 border-violet-200 dark:border-violet-800';
   let badgeTooltip = 'Interpreted via Groq LLM model';
 
   if (interpretedBy === 'rule') {
-    badgeIcon = '⚡';
     badgeLabel = 'Rule';
     badgeColor = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
     badgeTooltip = 'Resolved instantly via deterministic rule engine';
   } else if (interpretedBy === 'cache') {
-    badgeIcon = '💾';
     badgeLabel = 'Cache';
     badgeColor = 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800';
     badgeTooltip = 'Loaded from local deterministic hash cache';
   }
 
   const badgeHtml = `
-    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold font-mono border ${badgeColor}" title="${badgeTooltip}">
-      <span>${badgeIcon}</span>
+    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold font-mono border ${badgeColor}" title="${badgeTooltip}">
       <span>${badgeLabel}</span>
     </span>
   `;
