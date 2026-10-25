@@ -1,0 +1,178 @@
+{
+  "$defs": {
+    "CaptionOverlay": {
+      "description": "A text caption displayed over a time range in the output video.\n\ncaption_id    \u2013 sequential integer across the whole Timeline.\nword_ids      \u2013 the source word IDs this caption is anchored to.\n                These are the SURVIVING words after cuts; see RULES.md\n                \u00a7PartialCaption for what happens when some are cut.\ntext          \u2013 the caption string (set by AddCaption; derived from\n                transcript text by AutoCaption).\nstart_time    \u2013 when the caption first appears (OUTPUT timeline seconds).\nend_time      \u2013 when the caption disappears (\u2265 start_time + min_display_secs).\nmin_display_secs \u2013 floor for caption display duration (default 0.7 s).\nsource_op_id  \u2013 op_id of the AddCaption / AutoCaption that created this.",
+      "properties": {
+        "caption_id": {
+          "title": "Caption Id",
+          "type": "integer"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Word Ids",
+          "type": "array"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "start_time": {
+          "title": "Start Time",
+          "type": "number"
+        },
+        "end_time": {
+          "title": "End Time",
+          "type": "number"
+        },
+        "min_display_secs": {
+          "default": 0.7,
+          "title": "Min Display Secs",
+          "type": "number"
+        },
+        "source_op_id": {
+          "title": "Source Op Id",
+          "type": "integer"
+        },
+        "color": {
+          "default": "white",
+          "title": "Color",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 32,
+          "title": "Font Size",
+          "type": "integer"
+        },
+        "position": {
+          "default": "bottom",
+          "title": "Position",
+          "type": "string"
+        },
+        "font_style": {
+          "default": "normal",
+          "title": "Font Style",
+          "type": "string"
+        }
+      },
+      "required": [
+        "caption_id",
+        "word_ids",
+        "text",
+        "start_time",
+        "end_time",
+        "source_op_id"
+      ],
+      "title": "CaptionOverlay",
+      "type": "object"
+    },
+    "TimelineSegment": {
+      "description": "One contiguous block of source content in the output video.\n\nsegment_id      \u2013 sequential integer, 0-based in output order.\nsource_word_ids \u2013 the word IDs (from the original Transcript) that this\n                  segment plays back.  Always a contiguous run of source-\n                  adjacent words with uniform speed / mute / bleep state.\nstart_time      \u2013 start of this segment in the OUTPUT timeline (seconds).\nend_time        \u2013 end of this segment in the OUTPUT timeline (seconds).\nspeed_factor    \u2013 how fast these words are played (>1 = faster).\nis_muted        \u2013 audio is silenced for this segment.\nis_bleeped      \u2013 audio is replaced with a bleep for this segment.\nspeaker         \u2013 speaker label inherited from the first word in the segment.",
+      "properties": {
+        "segment_id": {
+          "title": "Segment Id",
+          "type": "integer"
+        },
+        "source_word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Source Word Ids",
+          "type": "array"
+        },
+        "start_time": {
+          "title": "Start Time",
+          "type": "number"
+        },
+        "end_time": {
+          "title": "End Time",
+          "type": "number"
+        },
+        "speed_factor": {
+          "default": 1.0,
+          "title": "Speed Factor",
+          "type": "number"
+        },
+        "is_muted": {
+          "default": false,
+          "title": "Is Muted",
+          "type": "boolean"
+        },
+        "is_bleeped": {
+          "default": false,
+          "title": "Is Bleeped",
+          "type": "boolean"
+        },
+        "speaker": {
+          "default": "S1",
+          "title": "Speaker",
+          "type": "string"
+        },
+        "zoom_factor": {
+          "default": 1.0,
+          "title": "Zoom Factor",
+          "type": "number"
+        }
+      },
+      "required": [
+        "segment_id",
+        "source_word_ids",
+        "start_time",
+        "end_time"
+      ],
+      "title": "TimelineSegment",
+      "type": "object"
+    }
+  },
+  "description": "The complete derived output of apply(log, transcript).\n\nsegments          \u2013 ordered list of playback segments.\ncaptions          \u2013 caption overlays that survived all cuts.\nremoved_captions  \u2013 captions whose EVERY anchor word was cut (reported as\n                    warnings; see RULES.md \u00a7CaptionFullyCut).\nwarnings          \u2013 human-readable messages about policy decisions made\n                    during this replay (e.g. removed captions).\ntotal_duration    \u2013 sum of all segment durations (seconds).\ntimeline_hash     \u2013 sha256 of canonical JSON (sorted keys, fixed float\n                    rounding, no clock-derived values).  Identical for\n                    identical (log, transcript) pairs on any machine.\nmasked_word_ids   \u2013 list of word IDs currently masked in captions with asterisks.",
+  "properties": {
+    "segments": {
+      "items": {
+        "$ref": "#/$defs/TimelineSegment"
+      },
+      "title": "Segments",
+      "type": "array"
+    },
+    "captions": {
+      "items": {
+        "$ref": "#/$defs/CaptionOverlay"
+      },
+      "title": "Captions",
+      "type": "array"
+    },
+    "removed_captions": {
+      "items": {
+        "$ref": "#/$defs/CaptionOverlay"
+      },
+      "title": "Removed Captions",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    },
+    "total_duration": {
+      "default": 0.0,
+      "title": "Total Duration",
+      "type": "number"
+    },
+    "timeline_hash": {
+      "default": "",
+      "title": "Timeline Hash",
+      "type": "string"
+    },
+    "masked_word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Masked Word Ids",
+      "type": "array"
+    }
+  },
+  "title": "Timeline",
+  "type": "object"
+}

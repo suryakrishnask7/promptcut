@@ -1,0 +1,57 @@
+{
+  "description": "One contiguous block of source content in the output video.\n\nsegment_id      \u2013 sequential integer, 0-based in output order.\nsource_word_ids \u2013 the word IDs (from the original Transcript) that this\n                  segment plays back.  Always a contiguous run of source-\n                  adjacent words with uniform speed / mute / bleep state.\nstart_time      \u2013 start of this segment in the OUTPUT timeline (seconds).\nend_time        \u2013 end of this segment in the OUTPUT timeline (seconds).\nspeed_factor    \u2013 how fast these words are played (>1 = faster).\nis_muted        \u2013 audio is silenced for this segment.\nis_bleeped      \u2013 audio is replaced with a bleep for this segment.\nspeaker         \u2013 speaker label inherited from the first word in the segment.",
+  "properties": {
+    "segment_id": {
+      "title": "Segment Id",
+      "type": "integer"
+    },
+    "source_word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Source Word Ids",
+      "type": "array"
+    },
+    "start_time": {
+      "title": "Start Time",
+      "type": "number"
+    },
+    "end_time": {
+      "title": "End Time",
+      "type": "number"
+    },
+    "speed_factor": {
+      "default": 1.0,
+      "title": "Speed Factor",
+      "type": "number"
+    },
+    "is_muted": {
+      "default": false,
+      "title": "Is Muted",
+      "type": "boolean"
+    },
+    "is_bleeped": {
+      "default": false,
+      "title": "Is Bleeped",
+      "type": "boolean"
+    },
+    "speaker": {
+      "default": "S1",
+      "title": "Speaker",
+      "type": "string"
+    },
+    "zoom_factor": {
+      "default": 1.0,
+      "title": "Zoom Factor",
+      "type": "number"
+    }
+  },
+  "required": [
+    "segment_id",
+    "source_word_ids",
+    "start_time",
+    "end_time"
+  ],
+  "title": "TimelineSegment",
+  "type": "object"
+}

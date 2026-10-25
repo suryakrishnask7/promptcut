@@ -1,0 +1,67 @@
+{
+  "description": "A text caption displayed over a time range in the output video.\n\ncaption_id    \u2013 sequential integer across the whole Timeline.\nword_ids      \u2013 the source word IDs this caption is anchored to.\n                These are the SURVIVING words after cuts; see RULES.md\n                \u00a7PartialCaption for what happens when some are cut.\ntext          \u2013 the caption string (set by AddCaption; derived from\n                transcript text by AutoCaption).\nstart_time    \u2013 when the caption first appears (OUTPUT timeline seconds).\nend_time      \u2013 when the caption disappears (\u2265 start_time + min_display_secs).\nmin_display_secs \u2013 floor for caption display duration (default 0.7 s).\nsource_op_id  \u2013 op_id of the AddCaption / AutoCaption that created this.",
+  "properties": {
+    "caption_id": {
+      "title": "Caption Id",
+      "type": "integer"
+    },
+    "word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Word Ids",
+      "type": "array"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "start_time": {
+      "title": "Start Time",
+      "type": "number"
+    },
+    "end_time": {
+      "title": "End Time",
+      "type": "number"
+    },
+    "min_display_secs": {
+      "default": 0.7,
+      "title": "Min Display Secs",
+      "type": "number"
+    },
+    "source_op_id": {
+      "title": "Source Op Id",
+      "type": "integer"
+    },
+    "color": {
+      "default": "white",
+      "title": "Color",
+      "type": "string"
+    },
+    "font_size": {
+      "default": 32,
+      "title": "Font Size",
+      "type": "integer"
+    },
+    "position": {
+      "default": "bottom",
+      "title": "Position",
+      "type": "string"
+    },
+    "font_style": {
+      "default": "normal",
+      "title": "Font Style",
+      "type": "string"
+    }
+  },
+  "required": [
+    "caption_id",
+    "word_ids",
+    "text",
+    "start_time",
+    "end_time",
+    "source_op_id"
+  ],
+  "title": "CaptionOverlay",
+  "type": "object"
+}

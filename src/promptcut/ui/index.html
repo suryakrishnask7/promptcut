@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PromptCut – Prompt-Based Video Editing Engine</title>
+  <meta name="description" content="Conversational, prompt-driven video editing engine with deterministic timeline derivation.">
+
+  <base href="/ui/">
+
+  <!-- Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Built Standalone CSS -->
+  <link rel="stylesheet" href="/ui/static/app.css">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        fontFamily: {
+          sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'Consolas', 'monospace'],
+        },
+        extend: {
+          colors: {
+            accent: {
+              DEFAULT: '#6366f1',
+              hover: '#4f46e5',
+              light: '#e0e7ff',
+              dark: '#3730a3',
+            },
+            applied: { DEFAULT: '#16a34a', light: '#f0fdf4', border: '#86efac' },
+            clarify: { DEFAULT: '#d97706', light: '#fffbeb', border: '#fcd34d' },
+            rejected: { DEFAULT: '#dc2626', light: '#fef2f2', border: '#fca5a5' },
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html, body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #09090b;
+      color: #f4f4f5;
+    }
+    code, kbd, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .timeline-hatched {
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.25) 4px,
+        rgba(255, 255, 255, 0.25) 8px
+      );
+    }
+  </style>
+</head>
+<body class="h-full bg-zinc-950 text-zinc-100 flex flex-col overflow-hidden antialiased select-none">
+
+  <!-- ── Top Application Navigation Bar ──────────────────────────────────── -->
+  <header class="h-13 bg-zinc-900/90 backdrop-blur-md border-b border-zinc-800/80 px-4 flex items-center justify-between shrink-0 z-20">
+    <!-- Brand & Session Title (Clean, NO "PC" Box) -->
+    <div class="flex items-center gap-3">
+      <span class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.9)] animate-pulse"></span>
+        PromptCut
+      </span>
+
+      <div class="h-4 w-px bg-zinc-800"></div>
+
+      <!-- Current Session Info -->
+      <div class="flex items-center gap-2 text-xs">
+        <span id="sessionTitle" class="font-medium text-xs text-zinc-400 max-w-sm truncate">No Active Session</span>
+        <span id="sessionStatusBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-800 text-zinc-400 border border-zinc-700/60"></span>
+      </div>
+    </div>
+
+    <!-- Actions: Only Clean "Upload Video" Button -->
+    <div class="flex items-center gap-2">
+      <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/webm,audio/*" class="hidden">
+
+      <button
+        id="uploadVideoBtn"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
+        title="Upload your video or audio file"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        <span>Upload Video</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── 2-Column Studio Layout ─────────────────────────────────────────── -->
+  <main class="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0 bg-zinc-950">
+    <!-- Left Column: Video Player Canvas on Top + Transcript & Edit History below (60-64%) -->
+    <section class="w-full lg:w-[62%] xl:w-[64%] h-full flex flex-col border-r border-zinc-800/80 bg-zinc-950 overflow-hidden">
+      <!-- Video Player Canvas with Segment Scrubber -->
+      <div id="videoPanel" class="shrink-0 p-3 pb-2">
+        <video id="videoPlayer" class="hidden"></video>
+      </div>
+
+      <!-- Below Video: Studio Tabs (Transcript & Edit History) -->
+      <div class="flex-1 min-h-0 flex flex-col border-t border-zinc-800/70 bg-zinc-900/40 overflow-hidden">
+        <!-- Tab Header Switcher -->
+        <div class="h-10 px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-900/80 backdrop-blur shrink-0">
+          <div class="flex items-center gap-1.5">
+            <button
+              id="tabTranscriptBtn"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-zinc-800 border border-zinc-700/60 shadow-xs flex items-center gap-2 transition-all cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <span>Transcript</span>
+              <span id="tabWordCount" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300">0</span>
+            </button>
+
+            <button
+              id="tabLogBtn"
+              class="px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 flex items-center gap-2 transition-all cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Edit History</span>
+              <span id="tabLogCount" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-zinc-800 text-zinc-400">0</span>
+            </button>
+          </div>
+
+          <span class="text-[11px] text-zinc-500 font-mono hidden sm:inline">Click word to seek</span>
+        </div>
+
+        <!-- Tab 1: Interactive Transcript -->
+        <div id="transcriptPanel" class="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div id="transcriptContainer" class="hidden"></div>
+        </div>
+
+        <!-- Tab 2: Edit Operations Log -->
+        <div id="logPanel" class="flex-1 min-h-0 hidden flex-col overflow-hidden"></div>
+      </div>
+    </section>
+
+    <!-- Right Column: AI Instructions Assistant (36-38%) -->
+    <section class="w-full lg:w-[38%] xl:w-[36%] h-full flex flex-col bg-zinc-950 overflow-hidden" aria-label="AI Instructions Assistant">
+      <div id="chatPanel" class="flex-1 min-h-0 flex flex-col overflow-hidden"></div>
+    </section>
+  </main>
+
+  <!-- Global Toast Notifications Overlay -->
+  <div id="toastContainer" class="fixed top-16 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Bootstrapping Script (ES Module with cache buster) -->
+  <script type="module" src="/ui/app.js?v=7"></script>
+</body>
+</html>

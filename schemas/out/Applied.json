@@ -1,0 +1,81 @@
+{
+  "$defs": {
+    "DurationSummary": {
+      "description": "Before/after timeline lengths to surface in the UI.",
+      "properties": {
+        "before_secs": {
+          "title": "Before Secs",
+          "type": "number"
+        },
+        "after_secs": {
+          "title": "After Secs",
+          "type": "number"
+        }
+      },
+      "required": [
+        "before_secs",
+        "after_secs"
+      ],
+      "title": "DurationSummary",
+      "type": "object"
+    },
+    "OpSummary": {
+      "description": "One-line description of a single applied operation.",
+      "properties": {
+        "op_id": {
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "op_type": {
+          "title": "Op Type",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op_id",
+        "op_type",
+        "description"
+      ],
+      "title": "OpSummary",
+      "type": "object"
+    }
+  },
+  "description": "Returned when one or more operations were accepted and applied.\n\noperations   \u2013 summaries of every op that was pushed.\nduration     \u2013 before/after timeline lengths.\nsummary      \u2013 human-readable one-liner for the UI.\ntime_policy  \u2013 always TIME_POLICY; states the coordinate system used.\nwarnings     \u2013 policy decisions made during apply() (e.g. removed captions).",
+  "properties": {
+    "operations": {
+      "items": {
+        "$ref": "#/$defs/OpSummary"
+      },
+      "title": "Operations",
+      "type": "array"
+    },
+    "duration": {
+      "$ref": "#/$defs/DurationSummary"
+    },
+    "summary": {
+      "title": "Summary",
+      "type": "string"
+    },
+    "time_policy": {
+      "title": "Time Policy",
+      "type": "string"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "duration",
+    "summary"
+  ],
+  "title": "Applied",
+  "type": "object"
+}

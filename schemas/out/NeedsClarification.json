@@ -1,0 +1,55 @@
+{
+  "$defs": {
+    "ClarificationOption": {
+      "description": "One candidate match for the user to choose from.",
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Word Ids",
+          "type": "array"
+        },
+        "context": {
+          "default": "",
+          "title": "Context",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "word_ids"
+      ],
+      "title": "ClarificationOption",
+      "type": "object"
+    }
+  },
+  "description": "Returned when the instruction was ambiguous.\n\nquestion \u2013 the clarifying question to show the user.\noptions  \u2013 the candidate matches to choose from.\ntime_policy \u2013 always TIME_POLICY.",
+  "properties": {
+    "question": {
+      "title": "Question",
+      "type": "string"
+    },
+    "options": {
+      "items": {
+        "$ref": "#/$defs/ClarificationOption"
+      },
+      "title": "Options",
+      "type": "array"
+    },
+    "time_policy": {
+      "title": "Time Policy",
+      "type": "string"
+    }
+  },
+  "required": [
+    "question",
+    "options"
+  ],
+  "title": "NeedsClarification",
+  "type": "object"
+}

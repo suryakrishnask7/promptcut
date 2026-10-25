@@ -1,0 +1,57 @@
+{
+  "description": "Overlay a music track, ducking it under speech for the listed words.\n\n``track_ref`` is an opaque reference to a music asset (resolved later by\nthe ffmpeg layer, not in scope for this phase).\n``duck_level_db`` is how many dB to attenuate the music under speech.",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "add_music_ducked",
+      "default": "add_music_ducked",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "title": "Word Ids",
+      "type": "array"
+    },
+    "track_ref": {
+      "title": "Track Ref",
+      "type": "string"
+    },
+    "duck_level_db": {
+      "default": -18.0,
+      "maximum": 0.0,
+      "title": "Duck Level Db",
+      "type": "number"
+    }
+  },
+  "required": [
+    "word_ids",
+    "track_ref"
+  ],
+  "title": "AddMusicDucked",
+  "type": "object"
+}

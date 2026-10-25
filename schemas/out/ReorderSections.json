@@ -1,0 +1,49 @@
+{
+  "description": "Lay out the timeline as an ordered list of word-ID sections.\n\nEach inner list is a contiguous block of word IDs that will appear in the\noutput in the order listed.  Words absent from every section are excluded\nfrom the output (see RULES.md \u00a7Reorder).",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "reorder_sections",
+      "default": "reorder_sections",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "sections": {
+      "items": {
+        "items": {
+          "type": "integer"
+        },
+        "type": "array"
+      },
+      "minItems": 1,
+      "title": "Sections",
+      "type": "array"
+    }
+  },
+  "required": [
+    "sections"
+  ],
+  "title": "ReorderSections",
+  "type": "object"
+}

@@ -1,0 +1,46 @@
+{
+  "description": "Cut all words whose normalised text matches any entry in ``filler_words``.\n\nNormalisation: lowercase, strip leading/trailing punctuation.\nCommon defaults: [\"um\", \"uh\", \"like\"].",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "remove_fillers",
+      "default": "remove_fillers",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "filler_words": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Filler Words",
+      "type": "array"
+    }
+  },
+  "required": [
+    "filler_words"
+  ],
+  "title": "RemoveFillers",
+  "type": "object"
+}

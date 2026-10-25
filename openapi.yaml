@@ -1,0 +1,637 @@
+openapi: 3.1.0
+info:
+  title: PromptCut – Prompt-Based Video Editing Engine
+  description: Backend API and local interactive UI for conversational video editing.
+  version: 0.3.0
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Liveness endpoint.
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Health Check Health Get
+  /ready:
+    get:
+      summary: Ready Check
+      description: Readiness endpoint verifying storage, ffmpeg, and interpreter.
+      operationId: ready_check_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Ready Check Ready Get
+  /api/v1/sessions:
+    post:
+      summary: Create Session
+      description: Create a new editing session from a file upload, video URL, or
+        local file path.
+      operationId: create_session_api_v1_sessions_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_create_session_api_v1_sessions_post'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sample-session:
+    post:
+      summary: Create Sample Session
+      description: Generate a sample session with synthetic 8-second video and transcript
+        fixture.
+      operationId: create_sample_session_api_v1_sample_session_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Create Sample Session Api V1 Sample Session Post
+  /api/v1/jobs/{job_id}:
+    get:
+      summary: Get Job Status
+      description: Retrieve execution status of a background job.
+      operationId: get_job_status_api_v1_jobs__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Job Status Api V1 Jobs  Job Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/transcript:
+    get:
+      summary: Get Transcript
+      description: Retrieve current Transcript model.
+      operationId: get_transcript_api_v1_sessions__session_id__transcript_get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Transcript Api V1 Sessions  Session Id  Transcript
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/transcript/words/{word_id}:
+    put:
+      summary: Update Transcript Word
+      description: Update / correct a word's text in the transcript (e.g. for pronunciation
+        or ASR errors).
+      operationId: update_transcript_word_api_v1_sessions__session_id__transcript_words__word_id__put
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: word_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Word Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWordRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Update Transcript Word Api V1 Sessions  Session Id  Transcript
+                  Words  Word Id  Put
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/timeline:
+    get:
+      summary: Get Timeline
+      description: Retrieve compiled Timeline model.
+      operationId: get_timeline_api_v1_sessions__session_id__timeline_get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Timeline Api V1 Sessions  Session Id  Timeline
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/log:
+    get:
+      summary: Get Log
+      description: Retrieve full OperationLog and undo/redo pointers.
+      operationId: get_log_api_v1_sessions__session_id__log_get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Log Api V1 Sessions  Session Id  Log Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/instructions:
+    post:
+      summary: Evaluate Instruction
+      description: Evaluate a natural language edit instruction.
+      operationId: evaluate_instruction_api_v1_sessions__session_id__instructions_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstructionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Evaluate Instruction Api V1 Sessions  Session Id  Instructions
+                  Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/undo:
+    post:
+      summary: Undo Endpoint
+      description: Undo the last instruction in the session.
+      operationId: undo_endpoint_api_v1_sessions__session_id__undo_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Undo Endpoint Api V1 Sessions  Session Id  Undo Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/redo:
+    post:
+      summary: Redo Endpoint
+      description: Redo the last undone instruction in the session.
+      operationId: redo_endpoint_api_v1_sessions__session_id__redo_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Redo Endpoint Api V1 Sessions  Session Id  Redo Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/preview.mp4:
+    get:
+      summary: Stream Preview
+      description: 'Stream 480p preview video with HTTP Range requests.
+
+        If preview is generating or not yet ready, falls back immediately to streaming
+        original
+
+        media so video playback is instantaneous without network timeouts.'
+      operationId: stream_preview_api_v1_sessions__session_id__preview_mp4_get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/original.mp4:
+    get:
+      summary: Stream Original
+      description: Stream original media with HTTP Range requests for comparison.
+      operationId: stream_original_api_v1_sessions__session_id__original_mp4_get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/render:
+    post:
+      summary: Trigger Render
+      description: Start full quality production render job (asynchronous background
+        task).
+      operationId: trigger_render_api_v1_sessions__session_id__render_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: callback_url
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Callback Url
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/rendered.mp4:
+    get:
+      summary: Stream Rendered
+      description: Stream final rendered video.
+      operationId: stream_rendered_api_v1_sessions__session_id__rendered_mp4_get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/storage/{file_path}:
+    get:
+      summary: Get Storage File
+      description: Download/stream a file stored in the local storage backend.
+      operationId: get_storage_file_api_v1_storage__file_path__get
+      parameters:
+      - name: file_path
+        in: path
+        required: true
+        schema:
+          type: string
+          title: File Path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/sessions/{session_id}/interpreter-mode:
+    get:
+      summary: Get Session Interpreter Mode
+      description: Get the current interpreter mode for this session.
+      operationId: get_session_interpreter_mode_api_v1_sessions__session_id__interpreter_mode_get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Session Interpreter Mode Api V1 Sessions  Session
+                  Id  Interpreter Mode Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Set Session Interpreter Mode
+      description: Set the interpreter mode for this session ('auto', 'llm_only',
+        or 'rule_only').
+      operationId: set_session_interpreter_mode_api_v1_sessions__session_id__interpreter_mode_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterpreterModeRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Set Session Interpreter Mode Api V1 Sessions  Session
+                  Id  Interpreter Mode Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/debug/forced-crash:
+    get:
+      summary: Forced Crash
+      operationId: forced_crash_api_v1_debug_forced_crash_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    Body_create_session_api_v1_sessions_post:
+      properties:
+        video_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Path
+        video_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Url
+        transcript_fixture:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transcript Fixture
+        callback_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Callback Url
+        file:
+          anyOf:
+          - type: string
+            contentMediaType: application/octet-stream
+          - type: 'null'
+          title: File
+        transcript_file:
+          anyOf:
+          - type: string
+            contentMediaType: application/octet-stream
+          - type: 'null'
+          title: Transcript File
+      type: object
+      title: Body_create_session_api_v1_sessions_post
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InstructionRequest:
+      properties:
+        text:
+          type: string
+          title: Text
+          default: ''
+        instruction:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instruction
+        answer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Answer
+        interpreter_mode:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Interpreter Mode
+        mode:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mode
+      type: object
+      title: InstructionRequest
+    InterpreterModeRequest:
+      properties:
+        mode:
+          type: string
+          title: Mode
+      type: object
+      required:
+      - mode
+      title: InterpreterModeRequest
+    UpdateWordRequest:
+      properties:
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+      - text
+      title: UpdateWordRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

@@ -1,0 +1,52 @@
+{
+  "description": "Apply a speed multiplier to the listed words.\n\nfactor > 1.0  \u2192 faster (shorter duration in output).\nfactor < 1.0  \u2192 slower (longer duration).\nfactor == 1.0 \u2192 no change.\n\nWhen two SpeedRange ops target the same word the LAST one in the log wins\n(last-write-wins; see RULES.md \u00a7OverlappingSpeed).",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "speed_range",
+      "default": "speed_range",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "title": "Word Ids",
+      "type": "array"
+    },
+    "factor": {
+      "exclusiveMinimum": 0.0,
+      "title": "Factor",
+      "type": "number"
+    }
+  },
+  "required": [
+    "word_ids",
+    "factor"
+  ],
+  "title": "SpeedRange",
+  "type": "object"
+}

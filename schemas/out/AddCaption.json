@@ -1,0 +1,77 @@
+{
+  "description": "Attach an explicit text caption anchored to the listed words.\n\nThe caption is displayed for the full duration that any of its anchor words\nare on screen, extended to at least ``min_display_secs`` (see RULES.md).",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "add_caption",
+      "default": "add_caption",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "title": "Word Ids",
+      "type": "array"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "min_display_secs": {
+      "default": 0.7,
+      "exclusiveMinimum": 0.0,
+      "title": "Min Display Secs",
+      "type": "number"
+    },
+    "color": {
+      "default": "white",
+      "title": "Color",
+      "type": "string"
+    },
+    "font_size": {
+      "default": 32,
+      "title": "Font Size",
+      "type": "integer"
+    },
+    "position": {
+      "default": "bottom",
+      "title": "Position",
+      "type": "string"
+    },
+    "font_style": {
+      "default": "normal",
+      "title": "Font Style",
+      "type": "string"
+    }
+  },
+  "required": [
+    "word_ids",
+    "text"
+  ],
+  "title": "AddCaption",
+  "type": "object"
+}

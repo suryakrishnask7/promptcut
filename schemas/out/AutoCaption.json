@@ -1,0 +1,57 @@
+{
+  "description": "Auto-generate a caption from the transcript text of the listed words.\n\nThe engine joins the word texts in source order to form the caption string.",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "auto_caption",
+      "default": "auto_caption",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "title": "Word Ids",
+      "type": "array"
+    },
+    "min_display_secs": {
+      "default": 0.7,
+      "exclusiveMinimum": 0.0,
+      "title": "Min Display Secs",
+      "type": "number"
+    },
+    "color": {
+      "default": "white",
+      "title": "Color",
+      "type": "string"
+    }
+  },
+  "required": [
+    "word_ids"
+  ],
+  "title": "AutoCaption",
+  "type": "object"
+}

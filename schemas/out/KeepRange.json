@@ -1,0 +1,46 @@
+{
+  "description": "Keep ONLY the listed words; everything else is cut.",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "keep_range",
+      "default": "keep_range",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "title": "Word Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "word_ids"
+  ],
+  "title": "KeepRange",
+  "type": "object"
+}

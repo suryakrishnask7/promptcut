@@ -1,0 +1,65 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: promptcut_app
+    ports:
+      - "8000:8000"
+    environment:
+      - STORAGE_BACKEND=${STORAGE_BACKEND:-local}
+      - SESSIONS_DIR=/app/.promptcut_sessions
+      - S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:-minioadmin}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - S3_BUCKET=${S3_BUCKET:-promptcut-media}
+      - INTERPRETER=${INTERPRETER:-auto}
+      - TRANSCRIPTION_ADAPTER=${TRANSCRIPTION_ADAPTER:-mock}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - INCUBRIX_WEBHOOK_SECRET=${INCUBRIX_WEBHOOK_SECRET:-incubrix_secret_key_default}
+    depends_on:
+      minio:
+        condition: service_healthy
+        required: false
+    volumes:
+      - app_sessions:/app/.promptcut_sessions
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: promptcut_minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  # MinIO bucket initialiser – runs once to create the promptcut-media bucket
+  minio-init:
+    image: minio/mc:latest
+    container_name: promptcut_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 $${MINIO_ROOT_USER:-minioadmin} $${MINIO_ROOT_PASSWORD:-minioadmin};
+        mc mb --ignore-existing local/$${S3_BUCKET:-promptcut-media};
+        mc anonymous set download local/$${S3_BUCKET:-promptcut-media};
+        echo 'Bucket ready.';
+      "
+    restart: "no"
+
+volumes:
+  app_sessions:
+  minio_data:

@@ -1,0 +1,30 @@
+{
+  "description": "Returned when the instruction cannot be executed.\n\nreason           \u2013 human-readable explanation.\nconflicting_op_id \u2013 op_id of an existing op that conflicts, if applicable.\ntime_policy      \u2013 always TIME_POLICY.",
+  "properties": {
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "conflicting_op_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Conflicting Op Id"
+    },
+    "time_policy": {
+      "title": "Time Policy",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reason"
+  ],
+  "title": "Rejected",
+  "type": "object"
+}

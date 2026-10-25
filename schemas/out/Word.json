@@ -1,0 +1,48 @@
+{
+  "description": "A single transcribed word with its original timing in the source video.\n\nid        \u2013 monotonically increasing integer, 0-based, unique per transcript.\ntext      \u2013 raw transcribed text (may include punctuation).\nstart     \u2013 start time in seconds in the ORIGINAL source video.\nend       \u2013 end time in seconds in the ORIGINAL source video.\nspeaker   \u2013 speaker label (e.g. \"S1\", \"S2\").\nconfidence \u2013 ASR confidence score in [0, 1]; 1.0 for hand-written fixtures.",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "integer"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "start": {
+      "minimum": 0.0,
+      "title": "Start",
+      "type": "number"
+    },
+    "end": {
+      "minimum": 0.0,
+      "title": "End",
+      "type": "number"
+    },
+    "speaker": {
+      "default": "S1",
+      "title": "Speaker",
+      "type": "string"
+    },
+    "confidence": {
+      "default": 1.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "sentence_end": {
+      "default": false,
+      "title": "Sentence End",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "text",
+    "start",
+    "end"
+  ],
+  "title": "Word",
+  "type": "object"
+}

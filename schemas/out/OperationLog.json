@@ -1,0 +1,994 @@
+{
+  "$defs": {
+    "AddCaption": {
+      "description": "Attach an explicit text caption anchored to the listed words.\n\nThe caption is displayed for the full duration that any of its anchor words\nare on screen, extended to at least ``min_display_secs`` (see RULES.md).",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "add_caption",
+          "default": "add_caption",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "min_display_secs": {
+          "default": 0.7,
+          "exclusiveMinimum": 0.0,
+          "title": "Min Display Secs",
+          "type": "number"
+        },
+        "color": {
+          "default": "white",
+          "title": "Color",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 32,
+          "title": "Font Size",
+          "type": "integer"
+        },
+        "position": {
+          "default": "bottom",
+          "title": "Position",
+          "type": "string"
+        },
+        "font_style": {
+          "default": "normal",
+          "title": "Font Style",
+          "type": "string"
+        }
+      },
+      "required": [
+        "word_ids",
+        "text"
+      ],
+      "title": "AddCaption",
+      "type": "object"
+    },
+    "AddMusicDucked": {
+      "description": "Overlay a music track, ducking it under speech for the listed words.\n\n``track_ref`` is an opaque reference to a music asset (resolved later by\nthe ffmpeg layer, not in scope for this phase).\n``duck_level_db`` is how many dB to attenuate the music under speech.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "add_music_ducked",
+          "default": "add_music_ducked",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        },
+        "track_ref": {
+          "title": "Track Ref",
+          "type": "string"
+        },
+        "duck_level_db": {
+          "default": -18.0,
+          "maximum": 0.0,
+          "title": "Duck Level Db",
+          "type": "number"
+        }
+      },
+      "required": [
+        "word_ids",
+        "track_ref"
+      ],
+      "title": "AddMusicDucked",
+      "type": "object"
+    },
+    "AutoCaption": {
+      "description": "Auto-generate a caption from the transcript text of the listed words.\n\nThe engine joins the word texts in source order to form the caption string.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "auto_caption",
+          "default": "auto_caption",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        },
+        "min_display_secs": {
+          "default": 0.7,
+          "exclusiveMinimum": 0.0,
+          "title": "Min Display Secs",
+          "type": "number"
+        },
+        "color": {
+          "default": "white",
+          "title": "Color",
+          "type": "string"
+        }
+      },
+      "required": [
+        "word_ids"
+      ],
+      "title": "AutoCaption",
+      "type": "object"
+    },
+    "BleepWords": {
+      "description": "Replace the audio for the listed words with a bleep tone.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "bleep_words",
+          "default": "bleep_words",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "word_ids"
+      ],
+      "title": "BleepWords",
+      "type": "object"
+    },
+    "CutRange": {
+      "description": "Remove the listed words from the timeline entirely.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "cut_range",
+          "default": "cut_range",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "word_ids"
+      ],
+      "title": "CutRange",
+      "type": "object"
+    },
+    "KeepRange": {
+      "description": "Keep ONLY the listed words; everything else is cut.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "keep_range",
+          "default": "keep_range",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "word_ids"
+      ],
+      "title": "KeepRange",
+      "type": "object"
+    },
+    "MaskCaptions": {
+      "description": "Mask bleeped words in captions with asterisks matching their letter count.\nIf word_ids is empty, masks all bleeped words.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "mask_captions",
+          "default": "mask_captions",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Word Ids",
+          "type": "array"
+        }
+      },
+      "title": "MaskCaptions",
+      "type": "object"
+    },
+    "MuteWords": {
+      "description": "Silence the audio for the listed words (video frame retained).",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "mute_words",
+          "default": "mute_words",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "word_ids"
+      ],
+      "title": "MuteWords",
+      "type": "object"
+    },
+    "RemoveFillers": {
+      "description": "Cut all words whose normalised text matches any entry in ``filler_words``.\n\nNormalisation: lowercase, strip leading/trailing punctuation.\nCommon defaults: [\"um\", \"uh\", \"like\"].",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "remove_fillers",
+          "default": "remove_fillers",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "filler_words": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Filler Words",
+          "type": "array"
+        }
+      },
+      "required": [
+        "filler_words"
+      ],
+      "title": "RemoveFillers",
+      "type": "object"
+    },
+    "RemoveSilences": {
+      "description": "Compress inter-word gaps that exceed ``min_silence_secs`` down to\n``max_gap_secs`` in the output timeline.\n\nWords are NOT cut; only the gaps between them are shortened.\nApplied at segment-build time in the engine (see engine.py).",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "remove_silences",
+          "default": "remove_silences",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "min_silence_secs": {
+          "default": 0.5,
+          "exclusiveMinimum": 0.0,
+          "title": "Min Silence Secs",
+          "type": "number"
+        },
+        "max_gap_secs": {
+          "default": 0.3,
+          "minimum": 0.0,
+          "title": "Max Gap Secs",
+          "type": "number"
+        }
+      },
+      "title": "RemoveSilences",
+      "type": "object"
+    },
+    "ReorderSections": {
+      "description": "Lay out the timeline as an ordered list of word-ID sections.\n\nEach inner list is a contiguous block of word IDs that will appear in the\noutput in the order listed.  Words absent from every section are excluded\nfrom the output (see RULES.md \u00a7Reorder).",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "reorder_sections",
+          "default": "reorder_sections",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "sections": {
+          "items": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "minItems": 1,
+          "title": "Sections",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sections"
+      ],
+      "title": "ReorderSections",
+      "type": "object"
+    },
+    "SetCaptionStyle": {
+      "description": "Update visual style attributes (color, font_size, position, font_style, text) of a caption.\n\nIf target_caption_op_id is None and exactly one caption exists, applies to it.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "set_caption_style",
+          "default": "set_caption_style",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "target_caption_op_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Caption Op Id"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "font_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Font Size"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
+        },
+        "font_style": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Font Style"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        }
+      },
+      "title": "SetCaptionStyle",
+      "type": "object"
+    },
+    "SpeedRange": {
+      "description": "Apply a speed multiplier to the listed words.\n\nfactor > 1.0  \u2192 faster (shorter duration in output).\nfactor < 1.0  \u2192 slower (longer duration).\nfactor == 1.0 \u2192 no change.\n\nWhen two SpeedRange ops target the same word the LAST one in the log wins\n(last-write-wins; see RULES.md \u00a7OverlappingSpeed).",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "speed_range",
+          "default": "speed_range",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        },
+        "factor": {
+          "exclusiveMinimum": 0.0,
+          "title": "Factor",
+          "type": "number"
+        }
+      },
+      "required": [
+        "word_ids",
+        "factor"
+      ],
+      "title": "SpeedRange",
+      "type": "object"
+    },
+    "UnbleepWords": {
+      "description": "Remove audio bleep tone from the listed words, restoring original audio.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "unbleep_words",
+          "default": "unbleep_words",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "word_ids"
+      ],
+      "title": "UnbleepWords",
+      "type": "object"
+    },
+    "UnmaskCaptions": {
+      "description": "Unmask bleeped words in captions, revealing the original word text.\nIf word_ids is empty, unmasks all bleeped words.",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "unmask_captions",
+          "default": "unmask_captions",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Word Ids",
+          "type": "array"
+        }
+      },
+      "title": "UnmaskCaptions",
+      "type": "object"
+    },
+    "ZoomSpeaker": {
+      "description": "Apply a visual zoom / punch-in effect to the video during the listed words.\n\nfactor: zoom magnification factor (>1.0 = punch in / closer framing, e.g. 1.2 = 20% zoom).\nanchor: visual framing anchor point (\"center\", \"top\").",
+      "properties": {
+        "op_id": {
+          "default": -1,
+          "title": "Op Id",
+          "type": "integer"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        },
+        "interpreted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interpreted By"
+        },
+        "op_type": {
+          "const": "zoom_speaker",
+          "default": "zoom_speaker",
+          "title": "Op Type",
+          "type": "string"
+        },
+        "word_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Word Ids",
+          "type": "array"
+        },
+        "factor": {
+          "default": 1.2,
+          "exclusiveMinimum": 0.5,
+          "maximum": 3.0,
+          "title": "Factor",
+          "type": "number"
+        },
+        "anchor": {
+          "default": "center",
+          "enum": [
+            "center",
+            "top"
+          ],
+          "title": "Anchor",
+          "type": "string"
+        }
+      },
+      "required": [
+        "word_ids"
+      ],
+      "title": "ZoomSpeaker",
+      "type": "object"
+    }
+  },
+  "description": "Append-only operation history with undo/redo pointer.\n\nops     \u2013 all operations ever pushed (including ones beyond ``pointer``\n          that could be redo'd, until a new push clears them).\npointer \u2013 how many ops are currently \"in scope\" (0 = fully undone).",
+  "properties": {
+    "ops": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "add_caption": "#/$defs/AddCaption",
+            "add_music_ducked": "#/$defs/AddMusicDucked",
+            "auto_caption": "#/$defs/AutoCaption",
+            "bleep_words": "#/$defs/BleepWords",
+            "cut_range": "#/$defs/CutRange",
+            "keep_range": "#/$defs/KeepRange",
+            "mask_captions": "#/$defs/MaskCaptions",
+            "mute_words": "#/$defs/MuteWords",
+            "remove_fillers": "#/$defs/RemoveFillers",
+            "remove_silences": "#/$defs/RemoveSilences",
+            "reorder_sections": "#/$defs/ReorderSections",
+            "set_caption_style": "#/$defs/SetCaptionStyle",
+            "speed_range": "#/$defs/SpeedRange",
+            "unbleep_words": "#/$defs/UnbleepWords",
+            "unmask_captions": "#/$defs/UnmaskCaptions",
+            "zoom_speaker": "#/$defs/ZoomSpeaker"
+          },
+          "propertyName": "op_type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/CutRange"
+          },
+          {
+            "$ref": "#/$defs/KeepRange"
+          },
+          {
+            "$ref": "#/$defs/ReorderSections"
+          },
+          {
+            "$ref": "#/$defs/SpeedRange"
+          },
+          {
+            "$ref": "#/$defs/ZoomSpeaker"
+          },
+          {
+            "$ref": "#/$defs/MuteWords"
+          },
+          {
+            "$ref": "#/$defs/BleepWords"
+          },
+          {
+            "$ref": "#/$defs/UnbleepWords"
+          },
+          {
+            "$ref": "#/$defs/AddCaption"
+          },
+          {
+            "$ref": "#/$defs/SetCaptionStyle"
+          },
+          {
+            "$ref": "#/$defs/AutoCaption"
+          },
+          {
+            "$ref": "#/$defs/MaskCaptions"
+          },
+          {
+            "$ref": "#/$defs/UnmaskCaptions"
+          },
+          {
+            "$ref": "#/$defs/RemoveFillers"
+          },
+          {
+            "$ref": "#/$defs/RemoveSilences"
+          },
+          {
+            "$ref": "#/$defs/AddMusicDucked"
+          }
+        ]
+      },
+      "title": "Ops",
+      "type": "array"
+    },
+    "pointer": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Pointer",
+      "type": "integer"
+    },
+    "action_history": {
+      "items": {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Action History",
+      "type": "array"
+    },
+    "action_redo": {
+      "items": {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Action Redo",
+      "type": "array"
+    }
+  },
+  "title": "OperationLog",
+  "type": "object"
+}

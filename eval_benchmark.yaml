@@ -1,0 +1,153 @@
+# Benchmark evaluation cases for Promptcut Natural Language Interpreters
+# Includes exact commands, phrase cuts with time hints, ambiguous cases,
+# clarification answers, vague cases, impossible cases, and should-reject cases.
+
+cases:
+  # 1. Exact engine commands
+  - id: "cmd_undo"
+    instruction: "undo"
+    expected_status: "undo"
+    category: "exact_command"
+
+  - id: "cmd_redo"
+    instruction: "redo"
+    expected_status: "redo"
+    category: "exact_command"
+
+  - id: "cmd_render"
+    instruction: "render"
+    expected_status: "render"
+    category: "exact_command"
+
+  # 2. Whole video captioning
+  - id: "caption_whole_video"
+    instruction: "caption the whole video"
+    expected_status: "applied"
+    expected_action: "caption"
+    expected_query: "__all__"
+    category: "captions"
+
+  - id: "autocaption"
+    instruction: "auto caption"
+    expected_status: "applied"
+    expected_action: "caption"
+    expected_query: "__all__"
+    category: "captions"
+
+  # 3. Caption styling
+  - id: "style_position_middle"
+    instruction: "move caption to the middle"
+    expected_status: "applied"
+    expected_action: "set_caption_style"
+    category: "style"
+
+  - id: "style_font_bold"
+    instruction: "make captions bold"
+    expected_status: "applied"
+    expected_action: "set_caption_style"
+    category: "style"
+
+  - id: "style_font_size"
+    instruction: "caption font size 40"
+    expected_status: "applied"
+    expected_action: "set_caption_style"
+    category: "style"
+
+  # 4. Fillers & Silences
+  - id: "remove_fillers"
+    instruction: "remove filler words"
+    expected_status: "applied"
+    expected_action: "remove_fillers"
+    category: "audio"
+
+  - id: "remove_silence"
+    instruction: "remove silence"
+    expected_status: "applied"
+    expected_action: "remove_silences"
+    category: "audio"
+
+  # 5. Restore
+  - id: "restore_intro"
+    instruction: "actually, put the intro back"
+    expected_status: "restore"
+    expected_action: "restore"
+    category: "history"
+
+  # 6. Explicit ranges
+  - id: "cut_first_30s"
+    instruction: "cut the first 30 seconds"
+    expected_status: "applied"
+    expected_action: "cut"
+    category: "range"
+
+  - id: "speed_range"
+    instruction: "speed up from 1:00 to 1:30 by 2x"
+    expected_status: "applied"
+    expected_action: "speed"
+    category: "range"
+
+  # 7. Phrase cut with time hint (unambiguous)
+  - id: "phrase_with_time_hint_1"
+    instruction: "there are two nexus 2.67 remove one of them"
+    expected_status: "applied"
+    expected_action: "cut"
+    expected_query: "nexus"
+    expected_time_hint: 2.67
+    category: "disambiguation"
+
+  - id: "phrase_with_time_hint_2"
+    instruction: "remove nexus near 2.67s"
+    expected_status: "applied"
+    expected_action: "cut"
+    expected_query: "nexus"
+    expected_time_hint: 2.67
+    category: "disambiguation"
+
+  # 8. Ambiguous phrase cut without hint (should clarify)
+  - id: "ambiguous_nexus"
+    instruction: "remove nexus"
+    expected_status: "applied"
+    expected_action: "cut"
+    expected_query: "nexus"
+    category: "clarify_candidate"
+
+  - id: "clarification_answer_second"
+    instruction: "the second one"
+    context:
+      pending_clarification:
+        action: "cut"
+        phrase: "nexus"
+        candidate_hits: [[7], [8]]
+    expected_status: "applied"
+    expected_action: "clarification_answer"
+    expected_occurrence: 2
+    category: "clarification_answer"
+
+  # 9. Vague cases (should ask for clarification or reject)
+  - id: "vague_make_better"
+    instruction: "make it better"
+    expected_status: "needs_clarification"
+    category: "vague"
+
+  - id: "vague_edit_video"
+    instruction: "edit video"
+    expected_status: "needs_clarification"
+    category: "vague"
+
+  # 10. Impossible cases (e.g. times beyond bounds)
+  - id: "impossible_time_cut"
+    instruction: "cut at 99:99"
+    expected_status: "applied"
+    expected_action: "cut"
+    category: "impossible"
+
+  # 11. Should-reject cases (completely out of domain)
+  - id: "reject_pizza"
+    instruction: "order pizza"
+    expected_status: "rejected"
+    category: "should_reject"
+
+  - id: "reject_download_subs"
+    instruction: "download subtitles from internet"
+    expected_status: "rejected"
+    category: "should_reject"

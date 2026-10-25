@@ -1,0 +1,47 @@
+{
+  "description": "Compress inter-word gaps that exceed ``min_silence_secs`` down to\n``max_gap_secs`` in the output timeline.\n\nWords are NOT cut; only the gaps between them are shortened.\nApplied at segment-build time in the engine (see engine.py).",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "remove_silences",
+      "default": "remove_silences",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "min_silence_secs": {
+      "default": 0.5,
+      "exclusiveMinimum": 0.0,
+      "title": "Min Silence Secs",
+      "type": "number"
+    },
+    "max_gap_secs": {
+      "default": 0.3,
+      "minimum": 0.0,
+      "title": "Max Gap Secs",
+      "type": "number"
+    }
+  },
+  "title": "RemoveSilences",
+  "type": "object"
+}

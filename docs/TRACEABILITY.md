@@ -1,0 +1,51 @@
+# IncuBrix Assessment 2 – Traceability Matrix
+
+> **Compliance Reference**: IncuBrix Engineering Assessment 2 Brief & Submission Workbook.  
+> Every claimed requirement, integration standard, and edge case is proven by an exact test or reproducible CLI command.  
+> Status: **PROVEN** (all 255 tests passing locally and in containerized environment).
+
+---
+
+## 1. IncuBrix Integration Standards (1 – 10)
+
+| # | Standard | Implementation Details | Exact Proving Test / Command | Status |
+|:---|:---|:---|:---|:---|
+| **1** | **Structured HTTP Errors** | Every HTTP error (including 500 catch-all and validation errors) returns `{"error":{"code":"UPPER_SNAKE_CASE","message":"...","retryable":bool,"details":{}}}`. Full code table documented in README. Forced crash test. | `tests/test_api_errors.py::test_forced_unhandled_crash_returns_500_standard_error`<br>`tests/test_api_errors.py::test_validation_error_standard_format`<br>`tests/test_api_errors.py::test_404_not_found_standard_error`<br>`tests/test_api_errors.py::test_400_bad_request_standard_format` | **PROVEN** |
+| **2** | **Health Checks & Structured Logs** | `GET /health` (liveness), `GET /ready` (verifies storage, ffmpeg binary, interpreter configuration). JSON structured logs with `timestamp`, `level`, `job_id`, `X-Correlation-Id` (echoed in headers). Automatic secret redaction for `GROQ_API_KEY`. | `tests/test_health_and_logging.py::test_get_health_liveness`<br>`tests/test_health_and_logging.py::test_get_ready_readiness`<br>`tests/test_health_and_logging.py::test_correlation_id_generated_and_echoed`<br>`tests/test_health_and_logging.py::test_never_log_secrets_groq_api_key_redaction` | **PROVEN** |
+| **3** | **Background Jobs & Signed Webhooks** | Transcription & render return 202 Accepted + `job_id`. `GET /api/v1/jobs/{id}` returns `status` (`queued`\|`running`\|`succeeded`\|`failed`) and `progress` 0–100. Optional `callback_url` signed with HMAC-SHA256 (`X-IncuBrix-Signature`) and retry logic. | `tests/test_jobs.py::test_session_creation_returns_202_with_job`<br>`tests/test_jobs.py::test_render_returns_202_with_job`<br>`tests/test_jobs.py::test_webhook_hmac_sha256_signature`<br>`tests/test_jobs.py::test_dispatch_webhook_with_mock_server` | **PROVEN** |
+| **4** | **Safe Retries (Idempotency-Key)** | `Idempotency-Key` header on POST `/sessions`, `/instructions`, `/render`. Same key + same body returns stored response with `X-Idempotent-Replay: true` without re-executing; same key + different body returns 409 `IDEMPOTENCY_KEY_REUSED`. | `tests/test_idempotency.py::test_idempotent_instruction_replay`<br>`tests/test_idempotency.py::test_idempotency_key_reused_with_different_body_returns_409`<br>`tests/test_idempotency.py::test_idempotent_render_replay`<br>`tests/test_idempotency.py::test_idempotent_session_creation` | **PROVEN** |
+| **5** | **Video Input by URL & SSRF Protection** | Accepts `video_url` in addition to upload on `POST /sessions`. HTTP/HTTPS only, blocks loopback, link-local (`169.254.x`), RFC 1918 private subnets, redirect-target SSRF bypasses, size limits (500 MB), and timeouts. | `tests/test_url_intake.py::test_reject_localhost`<br>`tests/test_url_intake.py::test_reject_link_local_and_cloud_metadata`<br>`tests/test_url_intake.py::test_reject_private_networks`<br>`tests/test_url_intake.py::test_redirect_to_private_ip_is_blocked`<br>`tests/test_url_intake.py::test_download_size_limit_exceeded`<br>`tests/test_url_intake.py::test_api_session_creation_rejects_localhost_url` | **PROVEN** |
+| **6** | **Job Manifest Generation** | Writes `manifest.json` per completed job/session containing runtime provider/model names and versions, settings, seed, timing breakdown, estimated cost, warnings, and software licences. | `tests/test_manifest.py::test_build_job_manifest_structure`<br>`tests/test_manifest.py::test_manifest_written_on_session_runner`<br>`tests/test_manifest.py::test_api_render_job_writes_manifest` | **PROVEN** |
+| **7** | **Batch CLI & API Runner** | `scripts/batch_runner.py` and `promptcut batch <folder> -o <out> [--api]`: runs test inputs against the API or in-process engine, writes per-session results (`result.json`, `timeline.json`, `log.json`, `manifest.json`) plus `summary.json`, continuing past errors. | `tests/test_batch_cli.py::test_batch_cli_execution_and_summary`<br>`tests/test_batch_runner_script.py::test_batch_runner_with_sample_session` | **PROVEN** |
+| **8** | **OpenAPI 3.1 Spec Export & CI Drift Check** | `scripts/export_openapi.py` exports clean `openapi.yaml`. Includes `--check` CI verification flag. All API endpoints live under `/api/v1/` (UI static routes excluded from API schema). | `scripts/export_openapi.py --check`<br>`tests/test_openapi_spec.py::test_openapi_yaml_exists_and_valid`<br>`tests/test_openapi_spec.py::test_all_api_endpoints_under_api_v1`<br>`tests/test_openapi_spec.py::test_openapi_yaml_is_up_to_date` | **PROVEN** |
+| **9** | **Storage Abstraction & Download Links** | Abstract `StorageAdapter` interface with `LocalStorageAdapter` and `S3StorageAdapter` (MinIO/S3 compatible), selectable via `STORAGE_BACKEND=local|s3|minio`. Render jobs upload outputs to storage backend and return presigned `download_url` in job response and webhook. Storage readiness probe hooked into `/ready`. | `tests/test_storage.py::test_local_storage_adapter`<br>`tests/test_storage.py::test_s3_storage_adapter_mocked`<br>`tests/test_storage.py::test_storage_adapter_factory` | **PROVEN** |
+| **10** | **Docker & Compose Packaging** | `Dockerfile` (includes system FFmpeg & Python 3.11), `docker-compose.yml` (orchestrates `app` and `minio`), `.env.example`. Starts via `docker compose up` and passes test suite with zero API keys. | `docker compose build`<br>`docker compose run --rm app pytest` | **PROVEN** |
+
+---
+
+## 2. Core Must-Haves (1 – 8)
+
+| # | Requirement | Implementation Details | Exact Proving Test | Status |
+|:---|:---|:---|:---|:---|
+| **1** | **Source Immutability** | Source media file is strictly read-only. SHA-256 hash computed before and after every session; any byte mutation triggers instant error. | `tests/test_intake.py::test_source_immutability_enforced`<br>`tests/test_intake.py::test_intake_computes_sha256_and_inspects` | **PROVEN** |
+| **2** | **Word-ID Anchoring** | Cuts and edits anchor to Word IDs, not absolute timestamps. Survives upstream edits without clock drift. | `tests/test_models.py::TestCutByWords::test_cut_by_words_removes_interval`<br>`tests/test_worked_example.py::TestWorkedExample::test_step_4_cut_before_pricing_caption_shifts` | **PROVEN** |
+| **3** | **Non-Destructive Stack** | Derived timeline model: `(OperationLog, Transcript) -> (Timeline, Captions)`. Append-only log with pointer. | `tests/test_engine.py::TestApply::test_empty_log_produces_single_segment`<br>`tests/test_models.py::TestOperationLog::test_undo_decrements_pointer`<br>`tests/test_models.py::TestOperationLog::test_push_clears_redo` | **PROVEN** |
+| **4** | **3-Way Response Envelope** | All operations return `Applied`, `NeedsClarification`, or `Rejected`, with `time_policy` always included. | `tests/test_response.py::TestApplied::test_json_roundtrip`<br>`tests/test_response.py::TestNeedsClarification::test_json_roundtrip`<br>`tests/test_response.py::TestRejected::test_json_roundtrip`<br>`tests/test_response.py::TestTimePolicyAlwaysPresent::test_applied_has_policy` | **PROVEN** |
+| **5** | **Determinism Replay** | Replaying identical `(OperationLog, Transcript)` 3 times produces identical bit-for-bit `timeline_hash`. | `tests/test_worked_example.py::TestSpecEdgeCases::test_determinism_replay_3_times`<br>`tests/test_engine.py::TestDeterminism::test_replay_3_times_identical_hash` | **PROVEN** |
+| **6** | **Clarification Loops** | Ambiguous natural language prompts halt with `needs_clarification`, ask questions with structured options, and resume on user answer. | `tests/test_session_runner.py::TestSessionRunner::test_run_session_workflow`<br>`tests/test_worked_example.py::TestSpecEdgeCases::test_ambiguous_phrase_has_multiple_hits` | **PROVEN** |
+| **7** | **A/V Sync & Rendering** | FFmpeg filtergraphs with video `trim`/`setpts` and audio `atrim`/`atempo`. Frame-accurate duration verification. | `tests/test_render.py::test_render_cut_duration_matches_within_one_frame`<br>`tests/test_render.py::test_render_caption_burn_in` | **PROVEN** |
+| **8** | **OpenTimelineIO Export** | Generates standard OTIO 1.0 JSON format for NLE interoperability (Premiere, Resolve, Final Cut). | `tests/test_otio_export.py::test_to_otio_dict_structure`<br>`tests/test_otio_export.py::test_export_otio_file_writing` | **PROVEN** |
+
+---
+
+## 3. Evaluation Edge Cases (Hard Cases 1 – 7)
+
+| Hard Case | Description | Exact Proving Test | Status |
+|:---|:---|:---|:---|
+| **HC1** | Ambiguous Phrase Target (3 occurrences of "pricing") | `tests/test_resolver.py::TestPhraseSearch::test_pricing_three_times_in_fixture`<br>`tests/test_session_runner.py::TestSessionRunner::test_run_session_workflow` | **PROVEN** |
+| **HC2** | Spoken Time Expressions ("a minute twenty") | `tests/test_resolver.py::TestParseTimeExpression::test_spoken_a_minute_twenty`<br>`tests/test_resolver.py::TestParseTimeExpression::test_minutes_and_seconds` | **PROVEN** |
+| **HC3** | Restore Non-Adjacent Operation (Op 2 after Op 5) | `tests/test_models.py::TestOperationLog::test_restore_op_toggles_active`<br>`tests/test_worked_example.py::TestWorkedExample::test_step_8_restore_earlier_op_and_hash_stable` | **PROVEN** |
+| **HC4** | Cut Entire Video / Empty Timeline Safety | `tests/test_worked_example.py::TestSpecEdgeCases::test_cut_everything_produces_empty_timeline` | **PROVEN** |
+| **HC5** | Mid-Word Cut & Silence Snapping Tolerance | `tests/test_silence_snapping.py::test_cut_snaps_to_word_boundary_within_tolerance`<br>`tests/test_silence_snapping.py::test_cut_mid_word_outside_tolerance_emits_warning` | **PROVEN** |
+| **HC6** | Range Video Scrubbing (RFC 7233 206 Partial Content) | `tests/test_api.py::test_video_streaming_range_request`<br>`tests/test_api.py::test_video_streaming_full_content` | **PROVEN** |
+| **HC7** | Secret Redaction (`GROQ_API_KEY`) in JSON Logs | `tests/test_health_and_logging.py::test_never_log_secrets_groq_api_key_redaction` | **PROVEN** |

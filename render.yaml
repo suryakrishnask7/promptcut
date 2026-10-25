@@ -1,0 +1,33 @@
+# Render Blueprint Specification (render.yaml)
+# Docs: https://render.com/docs/blueprint-spec
+# To deploy: Connect your repository on Render -> New -> Blueprint
+
+services:
+  - type: web
+    name: promptcut
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter # Change to 'free' if deploying under Render free tier
+    region: oregon # Choices: oregon, ohio, virginia, frankfurt, singapore
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: TIME_POLICY
+        value: original
+      - key: STORAGE_BACKEND
+        value: local
+      - key: SILENCE_SNAP_TOLERANCE_S
+        value: "0.15"
+      - key: UVICORN_RELOAD
+        value: "false"
+      - key: GROQ_API_KEY
+        sync: false # Set securely in Render dashboard (under Environment -> Environment Variables)
+      - key: INCUBRIX_WEBHOOK_SECRET
+        generateValue: true # Render will automatically generate a cryptographically secure random secret

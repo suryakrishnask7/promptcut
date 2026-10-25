@@ -1,0 +1,46 @@
+[project]
+name = "promptcut"
+version = "0.1.0"
+description = "PromptCut – Prompt-Based Video Editing Engine (deterministic core)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "IncuBrix Assessment 2" }]
+dependencies = [
+    "pydantic>=2.0",
+    "ruamel.yaml>=0.18",
+    "vosk>=0.3.45",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "python-multipart>=0.0.9",
+    "pyyaml>=6.0",
+]
+
+
+[project.scripts]
+promptcut = "promptcut.cli.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/promptcut"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --tb=short"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "hatchling>=1.25",
+]

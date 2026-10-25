@@ -1,0 +1,62 @@
+{
+  "description": "Apply a visual zoom / punch-in effect to the video during the listed words.\n\nfactor: zoom magnification factor (>1.0 = punch in / closer framing, e.g. 1.2 = 20% zoom).\nanchor: visual framing anchor point (\"center\", \"top\").",
+  "properties": {
+    "op_id": {
+      "default": -1,
+      "title": "Op Id",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "interpreted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpreted By"
+    },
+    "op_type": {
+      "const": "zoom_speaker",
+      "default": "zoom_speaker",
+      "title": "Op Type",
+      "type": "string"
+    },
+    "word_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "title": "Word Ids",
+      "type": "array"
+    },
+    "factor": {
+      "default": 1.2,
+      "exclusiveMinimum": 0.5,
+      "maximum": 3.0,
+      "title": "Factor",
+      "type": "number"
+    },
+    "anchor": {
+      "default": "center",
+      "enum": [
+        "center",
+        "top"
+      ],
+      "title": "Anchor",
+      "type": "string"
+    }
+  },
+  "required": [
+    "word_ids"
+  ],
+  "title": "ZoomSpeaker",
+  "type": "object"
+}

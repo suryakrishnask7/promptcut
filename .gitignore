@@ -1,0 +1,34 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Promptcut sessions & cache
+.promptcut_sessions/
+.cache/
+*.mp4
+*.wav
+*.ass
+*.otio
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+Prompt-Optimizer-v2/

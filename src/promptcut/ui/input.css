@@ -1,0 +1,67 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   input.css  ·  Tailwind CSS source file
+   Run `scripts/build_css.sh` (or .ps1 on Windows) to produce static/app.css.
+   This file is NOT served directly – only the compiled output is.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Custom base ─────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* Accent in HSL so we can compose with /opacity syntax */
+    --accent-h: 239;
+    --accent-s: 84%;
+    --accent-l: 67%;
+  }
+
+  html {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Smooth focus ring everywhere */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-white dark:ring-offset-zinc-900;
+  }
+}
+
+/* ── Custom components ────────────────────────────────────────────────────── */
+@layer components {
+  /* Pill badge for interpreter source */
+  .badge-rule  { @apply inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300; }
+  .badge-llm   { @apply inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-violet-50  text-violet-700  dark:bg-violet-950  dark:text-violet-300; }
+  .badge-cache { @apply inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-zinc-100   text-zinc-600    dark:bg-zinc-800    dark:text-zinc-400; }
+
+  /* Response cards */
+  .card-applied  { @apply rounded-xl border border-applied/40  bg-applied/5  dark:bg-applied/10; }
+  .card-clarify  { @apply rounded-xl border border-clarify/40  bg-clarify/5  dark:bg-clarify/10; }
+  .card-rejected { @apply rounded-xl border border-rejected/40 bg-rejected/5 dark:bg-rejected/10; }
+
+  /* Skeleton shimmer */
+  .skeleton {
+    @apply rounded bg-zinc-200 dark:bg-zinc-700 animate-shimmer;
+    background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+    background-size: 200% 100%;
+  }
+}
+
+/* ── Custom utilities ────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Hatched fill for speed-changed segments on the timeline bar */
+  .timeline-hatched {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(255, 255, 255, 0.25) 4px,
+      rgba(255, 255, 255, 0.25) 8px
+    );
+  }
+
+  /* Wavy underline for bleeped words */
+  .underline-wavy {
+    text-decoration: underline wavy;
+  }
+}
